@@ -10,7 +10,7 @@ import { PasswordGate } from '@/components/PasswordGate'
 import { defaultFilters } from '@/components/FilterPanel'
 import type { LicenseFilters } from '@/types'
 
-function App() {
+function AuthenticatedApp() {
   const {
     licenses,
     addLicense,
@@ -23,19 +23,12 @@ function App() {
     importData,
   } = useLicenses()
 
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('app-authenticated') === 'true'
-  })
   const [searchQuery, setSearchQuery] = useState('')
   const [addLicenseOpen, setAddLicenseOpen] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('cards')
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({})
   const [filters, setFilters] = useState<LicenseFilters>(defaultFilters)
   const [filtersOpen, setFiltersOpen] = useState(false)
-
-  if (!isAuthenticated) {
-    return <PasswordGate onSuccess={() => setIsAuthenticated(true)} />
-  }
 
   const isCardExpanded = (licenseId: string) => {
     if (expandedCards[licenseId] !== undefined) {
@@ -193,6 +186,18 @@ function App() {
       </div>
     </div>
   )
+}
+
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('app-authenticated') === 'true'
+  })
+
+  if (!isAuthenticated) {
+    return <PasswordGate onSuccess={() => setIsAuthenticated(true)} />
+  }
+
+  return <AuthenticatedApp />
 }
 
 export default App
