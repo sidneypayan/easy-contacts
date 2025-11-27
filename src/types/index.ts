@@ -25,6 +25,8 @@ export interface License {
   type: 'imagerie' | 'maison_sante'
   mode: LicenseMode
   address?: string
+  postalCode?: string
+  city?: string
   connector?: ConnectorType
   options: LicenseOption[]
   isFitCenter: boolean
@@ -80,3 +82,11 @@ export const ROLE_SUGGESTIONS = [
   'Médecin généraliste',
   'Coordinateur',
 ]
+
+export interface LicenseFilters {
+  isFitCenter: boolean | null
+  mode: LicenseMode | null
+  type: LicenseType | null
+  connector: ConnectorType | 'any' | null
+  options: LicenseOption[]
+}

@@ -108,10 +108,12 @@ export function LicenseCard({
                     {LICENSE_TYPE_LABELS[license.type]}
                   </span>
                 </div>
-                {license.address && (
+                {(license.address || license.postalCode || license.city) && (
                   <p className="flex items-center gap-1.5 mt-2 text-sm text-gray-500">
                     <MapPin className="h-3.5 w-3.5 shrink-0 text-violet-400" />
-                    <span className="truncate">{license.address}</span>
+                    <span className="truncate">
+                      {[license.address, [license.postalCode, license.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')}
+                    </span>
                   </p>
                 )}
 

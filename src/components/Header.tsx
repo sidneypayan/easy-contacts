@@ -2,6 +2,8 @@ import { useRef } from 'react'
 import { Stethoscope, Plus, Download, Upload, Search, Sparkles, LayoutGrid, List } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { FilterPanel } from './FilterPanel'
+import type { LicenseFilters } from '@/types'
 
 export type ViewMode = 'cards' | 'list'
 
@@ -15,6 +17,10 @@ interface HeaderProps {
   totalContacts: number
   viewMode: ViewMode
   onViewModeChange: (mode: ViewMode) => void
+  filters: LicenseFilters
+  onFiltersChange: (filters: LicenseFilters) => void
+  filtersOpen: boolean
+  onFiltersToggle: () => void
 }
 
 export function Header({
@@ -27,6 +33,10 @@ export function Header({
   totalContacts,
   viewMode,
   onViewModeChange,
+  filters,
+  onFiltersChange,
+  filtersOpen,
+  onFiltersToggle,
 }: HeaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -80,6 +90,14 @@ export function Header({
               />
             </div>
             <div className="flex items-center gap-2">
+              {/* Filters */}
+              <FilterPanel
+                filters={filters}
+                onFiltersChange={onFiltersChange}
+                isOpen={filtersOpen}
+                onToggle={onFiltersToggle}
+              />
+
               {/* View mode toggle */}
               <div className="flex items-center rounded-xl border border-violet-200 bg-white/80 p-1">
                 <button

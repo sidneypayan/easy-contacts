@@ -6,6 +6,9 @@ import { LicenseCard } from '@/components/LicenseCard'
 import { LicenseListItem } from '@/components/LicenseListItem'
 import { LicenseForm } from '@/components/LicenseForm'
 import { EmptyState } from '@/components/EmptyState'
+import { PasswordGate } from '@/components/PasswordGate'
+import { defaultFilters } from '@/components/FilterPanel'
+import type { LicenseFilters } from '@/types'
 
 function App() {
   const {
@@ -20,10 +23,19 @@ function App() {
     importData,
   } = useLicenses()
 
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem('app-authenticated') === 'true'
+  })
   const [searchQuery, setSearchQuery] = useState('')
   const [addLicenseOpen, setAddLicenseOpen] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('cards')
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({})
+  const [filters, setFilters] = useState<LicenseFilters>(defaultFilters)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+
+  if (!isAuthenticated) {
+    return <PasswordGate onSuccess={() => setIsAuthenticated(true)} />
+  }
 
   const isCardExpanded = (licenseId: string) => {
     if (expandedCards[licenseId] !== undefined) {
@@ -44,27 +56,58 @@ function App() {
   }
 
   const filteredLicenses = useMemo(() => {
-    if (!searchQuery.trim()) return licenses
-
-    const query = searchQuery.toLowerCase()
     return licenses.filter((license) => {
-      const matchesLicense =
-        license.name.toLowerCase().includes(query) ||
-        license.licenseNumber.toLowerCase().includes(query) ||
-        license.address?.toLowerCase().includes(query)
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase()
+        const matchesLicense =
+          license.name.toLowerCase().includes(query) ||
+          license.licenseNumber.toLowerCase().includes(query) ||
+          license.address?.toLowerCase().includes(query) ||
+          license.city?.toLowerCase().includes(query) ||
+          license.postalCode?.includes(query)
 
-      const matchesContact = license.contacts.some(
-        (contact) =>
-          contact.firstName.toLowerCase().includes(query) ||
-          contact.lastName.toLowerCase().includes(query) ||
-          contact.role.toLowerCase().includes(query) ||
-          contact.phoneFixed?.includes(query) ||
-          contact.phoneMobile?.includes(query)
-      )
+        const matchesContact = license.contacts.some(
+          (contact) =>
+            contact.firstName.toLowerCase().includes(query) ||
+            contact.lastName.toLowerCase().includes(query) ||
+            contact.role.toLowerCase().includes(query) ||
+            contact.phoneFixed?.includes(query) ||
+            contact.phoneMobile?.includes(query)
+        )
 
-      return matchesLicense || matchesContact
+        if (!matchesLicense && !matchesContact) return false
+      }
+
+      // FIT filter
+      if (filters.isFitCenter !== null && license.isFitCenter !== filters.isFitCenter) {
+        return false
+      }
+
+      // Mode filter
+      if (filters.mode !== null && license.mode !== filters.mode) {
+        return false
+      }
+
+      // Type filter
+      if (filters.type !== null && license.type !== filters.type) {
+        return false
+      }
+
+      // Connector filter
+      if (filters.connector !== null && license.connector !== filters.connector) {
+        return false
+      }
+
+      // Options filter (at least one of the selected options)
+      if (filters.options.length > 0) {
+        const hasAnyOption = filters.options.some((opt) => license.options.includes(opt))
+        if (!hasAnyOption) return false
+      }
+
+      return true
     })
-  }, [licenses, searchQuery])
+  }, [licenses, searchQuery, filters])
 
   const totalContacts = licenses.reduce((sum, license) => sum + license.contacts.length, 0)
 
@@ -89,6 +132,10 @@ function App() {
           totalContacts={totalContacts}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          filters={filters}
+          onFiltersChange={setFilters}
+          filtersOpen={filtersOpen}
+          onFiltersToggle={() => setFiltersOpen(!filtersOpen)}
         />
         <main className="container mx-auto px-4 py-8">
           {licenses.length === 0 ? (
@@ -98,7 +145,11 @@ function App() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/80 backdrop-blur-sm shadow-lg mb-4">
                 <span className="text-3xl">🔍</span>
               </div>
-              <p className="text-gray-500 font-medium">Aucun résultat pour "{searchQuery}"</p>
+              <p className="text-gray-500 font-medium">
+                {searchQuery.trim()
+                  ? `Aucun résultat pour "${searchQuery}"`
+                  : 'Aucune licence ne correspond aux filtres sélectionnés'}
+              </p>
             </div>
           ) : viewMode === 'cards' ? (
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3 items-start">

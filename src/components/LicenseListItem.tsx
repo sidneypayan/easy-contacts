@@ -118,10 +118,12 @@ export function LicenseListItem({
                   {CONNECTOR_LABELS[license.connector]}
                 </span>
               )}
-              {license.address && (
+              {(license.address || license.postalCode || license.city) && (
                 <span className="hidden lg:flex items-center gap-1 text-xs text-gray-400 truncate">
                   <MapPin className="h-3 w-3 shrink-0" />
-                  <span className="truncate">{license.address}</span>
+                  <span className="truncate">
+                    {[license.address, [license.postalCode, license.city].filter(Boolean).join(' ')].filter(Boolean).join(', ')}
+                  </span>
                 </span>
               )}
             </div>

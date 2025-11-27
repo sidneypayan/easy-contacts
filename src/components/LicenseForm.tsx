@@ -18,6 +18,8 @@ interface LicenseFormData {
   type: LicenseType
   mode: LicenseMode
   address?: string
+  postalCode?: string
+  city?: string
   connector?: ConnectorType
   options: LicenseOption[]
   isFitCenter: boolean
@@ -37,6 +39,8 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
   const [type, setType] = useState<LicenseType>(initialData?.type ?? 'imagerie')
   const [mode, setMode] = useState<LicenseMode>(initialData?.mode ?? 'full')
   const [address, setAddress] = useState(initialData?.address ?? '')
+  const [postalCode, setPostalCode] = useState(initialData?.postalCode ?? '')
+  const [city, setCity] = useState(initialData?.city ?? '')
   const [connector, setConnector] = useState<ConnectorType>(initialData?.connector ?? null)
   const [options, setOptions] = useState<LicenseOption[]>(initialData?.options ?? [])
   const [isFitCenter, setIsFitCenter] = useState(initialData?.isFitCenter ?? false)
@@ -51,6 +55,8 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
       type,
       mode,
       address: address.trim() || undefined,
+      postalCode: postalCode.trim() || undefined,
+      city: city.trim() || undefined,
       connector,
       options,
       isFitCenter,
@@ -62,6 +68,8 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
       setType('imagerie')
       setMode('full')
       setAddress('')
+      setPostalCode('')
+      setCity('')
       setConnector(null)
       setOptions([])
       setIsFitCenter(false)
@@ -76,6 +84,8 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
     setType(initialData?.type ?? 'imagerie')
     setMode(initialData?.mode ?? 'full')
     setAddress(initialData?.address ?? '')
+    setPostalCode(initialData?.postalCode ?? '')
+    setCity(initialData?.city ?? '')
     setConnector(initialData?.connector ?? null)
     setOptions(initialData?.options ?? [])
     setIsFitCenter(initialData?.isFitCenter ?? false)
@@ -180,8 +190,26 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
             <Input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Ex: 123 Avenue de la Santé, 75001 Paris"
+              placeholder="Ex: 123 Avenue de la Santé"
             />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Code postal</label>
+              <Input
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                placeholder="Ex: 75001"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Ville</label>
+              <Input
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Ex: Paris"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
