@@ -6,7 +6,6 @@ import {
   Trash2,
   UserPlus,
   ChevronDown,
-  ChevronUp,
   Users,
   FileText,
   Plug,
