@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { UserPlus, Phone, Smartphone, Briefcase, MessageSquare, Mail, Plus, X } from 'lucide-react'
+import { UserPlus, Phone, Briefcase, MessageSquare, Mail, Plus, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {

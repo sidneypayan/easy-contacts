@@ -1,6 +1,6 @@
 import { Filter, X, Shield, Layers, Building2, Plug, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { LicenseFilters, LicenseType, LicenseMode, LicenseOption, BrandType } from '@/types'
+import type { LicenseFilters, LicenseType, LicenseMode, LicenseOption } from '@/types'
 import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTORS, LICENSE_OPTIONS, BRANDS } from '@/types'
 
 interface FilterPanelProps {
