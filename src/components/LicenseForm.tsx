@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Building2, MapPin, FileText, Plug, Settings, Shield, MessageSquare, Layers } from 'lucide-react'
+import { Building2, MapPin, FileText, Plug, Settings, Shield, MessageSquare, Layers, Calendar, Globe, Network } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -9,8 +9,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from '@/components/ui/dialog'
-import type { License, LicenseType, LicenseMode, ConnectorType, LicenseOption } from '@/types'
-import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTORS, LICENSE_OPTIONS } from '@/types'
+import type { License, LicenseType, LicenseMode, ConnectorType, LicenseOption, PlanningType, PortalType } from '@/types'
+import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTORS, LICENSE_OPTIONS, PLANNINGS, PORTALS } from '@/types'
 
 interface LicenseFormData {
   licenseNumber: string
@@ -20,7 +20,10 @@ interface LicenseFormData {
   address?: string
   postalCode?: string
   city?: string
-  connector?: ConnectorType
+  portal: PortalType
+  connector: ConnectorType
+  hasWebserviceRequests: boolean
+  planning: PlanningType
   options: LicenseOption[]
   isFitCenter: boolean
   notes?: string
@@ -41,7 +44,10 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
   const [address, setAddress] = useState(initialData?.address ?? '')
   const [postalCode, setPostalCode] = useState(initialData?.postalCode ?? '')
   const [city, setCity] = useState(initialData?.city ?? '')
-  const [connector, setConnector] = useState<ConnectorType>(initialData?.connector ?? null)
+  const [portal, setPortal] = useState<PortalType>(initialData?.portal ?? 'easydoct')
+  const [connector, setConnector] = useState<ConnectorType>(initialData?.connector ?? 'xplore')
+  const [hasWebserviceRequests, setHasWebserviceRequests] = useState(initialData?.hasWebserviceRequests ?? false)
+  const [planning, setPlanning] = useState<PlanningType>(initialData?.planning ?? 'easydoct')
   const [options, setOptions] = useState<LicenseOption[]>(initialData?.options ?? [])
   const [isFitCenter, setIsFitCenter] = useState(initialData?.isFitCenter ?? false)
   const [notes, setNotes] = useState(initialData?.notes ?? '')
@@ -57,7 +63,10 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
       address: address.trim() || undefined,
       postalCode: postalCode.trim() || undefined,
       city: city.trim() || undefined,
+      portal,
       connector,
+      hasWebserviceRequests,
+      planning,
       options,
       isFitCenter,
       notes: notes.trim() || undefined,
@@ -70,7 +79,10 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
       setAddress('')
       setPostalCode('')
       setCity('')
-      setConnector(null)
+      setPortal('easydoct')
+      setConnector('xplore')
+      setHasWebserviceRequests(false)
+      setPlanning('easydoct')
       setOptions([])
       setIsFitCenter(false)
       setNotes('')
@@ -86,7 +98,10 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
     setAddress(initialData?.address ?? '')
     setPostalCode(initialData?.postalCode ?? '')
     setCity(initialData?.city ?? '')
-    setConnector(initialData?.connector ?? null)
+    setPortal(initialData?.portal ?? 'easydoct')
+    setConnector(initialData?.connector ?? 'xplore')
+    setHasWebserviceRequests(initialData?.hasWebserviceRequests ?? false)
+    setPlanning(initialData?.planning ?? 'easydoct')
     setOptions(initialData?.options ?? [])
     setIsFitCenter(initialData?.isFitCenter ?? false)
     setNotes(initialData?.notes ?? '')
@@ -136,53 +151,6 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
             />
           </div>
           <div className="space-y-2">
-            <label className="text-sm font-medium">Type d'établissement *</label>
-            <div className="grid grid-cols-2 gap-2">
-              {(Object.entries(LICENSE_TYPE_LABELS) as [LicenseType, string][]).map(
-                ([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setType(value)}
-                    className={`p-3 rounded-lg border text-sm font-medium transition-all ${
-                      type === value
-                        ? 'border-primary bg-primary/10 text-primary'
-                        : 'border-border hover:border-primary/50 hover:bg-muted'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <Layers className="h-4 w-4 text-muted-foreground" />
-              Mode de licence *
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {(Object.entries(LICENSE_MODE_LABELS) as [LicenseMode, string][]).map(
-                ([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setMode(value)}
-                    className={`p-3 rounded-lg border text-sm font-medium transition-all ${
-                      mode === value
-                        ? value === 'full'
-                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
-                          : 'border-amber-500 bg-amber-500/10 text-amber-600'
-                        : 'border-border hover:border-primary/50 hover:bg-muted'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
-          <div className="space-y-2">
             <label className="text-sm font-medium flex items-center gap-2">
               <MapPin className="h-4 w-4 text-muted-foreground" />
               Adresse
@@ -211,16 +179,107 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
               />
             </div>
           </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Type d'établissement *</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(Object.entries(LICENSE_TYPE_LABELS) as [LicenseType, string][]).map(
+                ([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setType(value)}
+                    className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                      type === value
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border hover:border-primary/50 hover:bg-muted'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              Portail *
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {PORTALS.map((p) => (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setPortal(p.value)}
+                  className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                    portal === p.value
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50 hover:bg-muted'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Layers className="h-4 w-4 text-muted-foreground" />
+              Connecteur *
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {(Object.entries(LICENSE_MODE_LABELS) as [LicenseMode, string][]).map(
+                ([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setMode(value)}
+                    className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                      mode === value
+                        ? value === 'full'
+                          ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600'
+                          : 'border-amber-500 bg-amber-500/10 text-amber-600'
+                        : 'border-border hover:border-primary/50 hover:bg-muted'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                )
+              )}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              Planification *
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              {PLANNINGS.map((p) => (
+                <button
+                  key={p.value}
+                  type="button"
+                  onClick={() => setPlanning(p.value)}
+                  className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                    planning === p.value
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/50 hover:bg-muted'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium flex items-center gap-2">
               <Plug className="h-4 w-4 text-muted-foreground" />
-              Connecteur
+              Connecteur *
             </label>
             <div className="grid grid-cols-3 gap-2">
               {CONNECTORS.map((c) => (
                 <button
-                  key={c.value ?? 'none'}
+                  key={c.value}
                   type="button"
                   onClick={() => setConnector(c.value)}
                   className={`p-2 rounded-lg border text-sm font-medium transition-all ${
@@ -232,6 +291,37 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
                   {c.label}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-2">
+              <Network className="h-4 w-4 text-muted-foreground" />
+              Requêtes webservice *
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setHasWebserviceRequests(true)}
+                className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                  hasWebserviceRequests === true
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:border-primary/50 hover:bg-muted'
+                }`}
+              >
+                Oui
+              </button>
+              <button
+                type="button"
+                onClick={() => setHasWebserviceRequests(false)}
+                className={`p-3 rounded-lg border text-sm font-medium transition-all ${
+                  hasWebserviceRequests === false
+                    ? 'border-primary bg-primary/10 text-primary'
+                    : 'border-border hover:border-primary/50 hover:bg-muted'
+                }`}
+              >
+                Non
+              </button>
             </div>
           </div>
 
@@ -287,7 +377,7 @@ export function LicenseForm({ open, onOpenChange, onSubmit, initialData }: Licen
               <div className="flex-1 text-left">
                 <div className="font-medium">Centre FIT</div>
                 <div className="text-xs text-muted-foreground">
-                  Cochez si cet établissement est un centre de dépistage FIT
+                  Cochez si cet établissement est un centre FIT
                 </div>
               </div>
               <span

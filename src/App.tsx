@@ -65,8 +65,9 @@ function AuthenticatedApp() {
             contact.firstName.toLowerCase().includes(query) ||
             contact.lastName.toLowerCase().includes(query) ||
             contact.role.toLowerCase().includes(query) ||
-            contact.phoneFixed?.includes(query) ||
-            contact.phoneMobile?.includes(query)
+            contact.phones.some(phone => phone.number.includes(query)) ||
+            contact.emails.some(email => email.toLowerCase().includes(query)) ||
+            contact.notes?.toLowerCase().includes(query)
         )
 
         if (!matchesLicense && !matchesContact) return false

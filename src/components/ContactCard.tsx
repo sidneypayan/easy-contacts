@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, Trash2, Phone, Smartphone, User } from 'lucide-react'
+import { Pencil, Trash2, Phone, Smartphone, User, MessageSquare, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -51,30 +51,54 @@ export function ContactCard({ contact, onUpdate, onDelete }: ContactCardProps) {
             </span>
           </div>
           <p className="text-xs text-gray-500 truncate font-medium">{contact.role}</p>
-          <div className="flex items-center gap-3 mt-1.5">
-            {contact.phoneFixed && (
-              <a
-                href={`tel:${contact.phoneFixed}`}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-violet-600 transition-colors group/phone"
-              >
-                <div className="p-1 rounded-md bg-gray-100 group-hover/phone:bg-violet-100 transition-colors">
-                  <Phone className="h-3 w-3" />
-                </div>
-                {contact.phoneFixed}
-              </a>
-            )}
-            {contact.phoneMobile && (
-              <a
-                href={`tel:${contact.phoneMobile}`}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-fuchsia-600 transition-colors group/phone"
-              >
-                <div className="p-1 rounded-md bg-gray-100 group-hover/phone:bg-fuchsia-100 transition-colors">
-                  <Smartphone className="h-3 w-3" />
-                </div>
-                {contact.phoneMobile}
-              </a>
-            )}
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            {contact.phones && contact.phones.map((phone, phoneIndex) => (
+              phone.number && (
+                <a
+                  key={phoneIndex}
+                  href={`tel:${phone.number}`}
+                  className={`flex items-center gap-1.5 text-xs text-gray-400 transition-colors group/phone ${
+                    phone.type === 'pro' ? 'hover:text-fuchsia-600' : 'hover:text-cyan-600'
+                  }`}
+                  title={`Téléphone ${phone.type === 'pro' ? 'professionnel' : 'personnel'}`}
+                >
+                  <div className={`p-1 rounded-md bg-gray-100 transition-colors ${
+                    phone.type === 'pro' ? 'group-hover/phone:bg-fuchsia-100' : 'group-hover/phone:bg-cyan-100'
+                  }`}>
+                    {phone.type === 'pro' ? (
+                      <Smartphone className="h-3 w-3" />
+                    ) : (
+                      <Phone className="h-3 w-3" />
+                    )}
+                  </div>
+                  <span className="font-medium">{phone.type === 'pro' ? 'Pro:' : 'Perso:'}</span> {phone.number}
+                </a>
+              )
+            ))}
           </div>
+          {contact.emails && contact.emails.length > 0 && (
+            <div className="flex items-start gap-1.5 mt-1.5 flex-wrap">
+              {contact.emails.map((email, index) => (
+                <a
+                  key={index}
+                  href={`mailto:${email}`}
+                  className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-blue-600 transition-colors group/email"
+                  title={email}
+                >
+                  <div className="p-1 rounded-md bg-gray-100 group-hover/email:bg-blue-100 transition-colors">
+                    <Mail className="h-3 w-3" />
+                  </div>
+                  <span className="truncate max-w-[150px]">{email}</span>
+                </a>
+              ))}
+            </div>
+          )}
+          {contact.notes && (
+            <div className="flex items-start gap-1.5 mt-1.5">
+              <MessageSquare className="h-3 w-3 text-gray-400 mt-0.5 shrink-0" />
+              <p className="text-xs text-gray-500 italic line-clamp-2">{contact.notes}</p>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <Button

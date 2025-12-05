@@ -7,10 +7,49 @@ const STORAGE_KEY = 'medical-contacts-licenses'
 
 export function useLicenses() {
   const [licenses, setLicenses] = useLocalStorage<License[]>(STORAGE_KEY, [], (data) => {
-    // Migration: ajouter le champ mode si absent
+    // Migration: ajouter les champs mode, planning, portal, connector et hasWebserviceRequests si absents
+    // Migration: convertir les anciens champs téléphone en tableau phones[]
+    // Migration: ajouter emails comme tableau vide pour les contacts existants
     return data.map((license) => ({
       ...license,
       mode: license.mode ?? 'full',
+      planning: license.planning ?? 'easydoct',
+      portal: license.portal ?? 'easydoct',
+      connector: license.connector ?? 'xplore',
+      hasWebserviceRequests: license.hasWebserviceRequests ?? false,
+      contacts: license.contacts.map((contact: any) => {
+        // Migration des anciens champs téléphone vers phones[]
+        const phones = []
+
+        // Convertir phoneFixed
+        if (contact.phoneFixed) {
+          phones.push({ number: contact.phoneFixed, type: 'pro' as const })
+        }
+
+        // Convertir phoneMobilePro ou phoneMobile
+        const mobilePro = contact.phoneMobilePro ?? contact.phoneMobile
+        if (mobilePro) {
+          phones.push({ number: mobilePro, type: 'pro' as const })
+        }
+
+        // Convertir phoneMobilePerso
+        if (contact.phoneMobilePerso) {
+          phones.push({ number: contact.phoneMobilePerso, type: 'perso' as const })
+        }
+
+        // Si déjà phones[], le garder, sinon utiliser le résultat de la migration
+        return {
+          ...contact,
+          phones: contact.phones ?? (phones.length > 0 ? phones : [{ number: '', type: 'pro' as const }]),
+          emails: contact.emails ?? [],
+          notes: contact.notes ?? undefined,
+          // Nettoyer les anciens champs
+          phoneFixed: undefined,
+          phoneMobile: undefined,
+          phoneMobilePro: undefined,
+          phoneMobilePerso: undefined,
+        }
+      }),
     }))
   })
 

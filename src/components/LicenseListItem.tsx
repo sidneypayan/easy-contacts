@@ -14,6 +14,10 @@ import {
   Smartphone,
   MessageSquare,
   Layers,
+  Calendar,
+  Globe,
+  Network,
+  Mail,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -26,7 +30,7 @@ import {
 } from '@/components/ui/dialog'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import type { License, Contact } from '@/types'
-import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS } from '@/types'
+import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS, PLANNING_LABELS, PORTAL_LABELS } from '@/types'
 import { LicenseForm } from './LicenseForm'
 import { ContactForm } from './ContactForm'
 
@@ -112,10 +116,22 @@ export function LicenseListItem({
             </div>
 
             <div className="flex items-center gap-2">
-              {license.connector && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">
-                  <Plug className="h-3 w-3" />
-                  {CONNECTOR_LABELS[license.connector]}
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">
+                <Plug className="h-3 w-3" />
+                {CONNECTOR_LABELS[license.connector]}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 text-teal-700 text-xs font-medium">
+                <Globe className="h-3 w-3" />
+                {PORTAL_LABELS[license.portal]}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 text-xs font-medium">
+                <Calendar className="h-3 w-3" />
+                {PLANNING_LABELS[license.planning]}
+              </span>
+              {license.hasWebserviceRequests && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-xs font-medium">
+                  <Network className="h-3 w-3" />
+                  WS
                 </span>
               )}
               {(license.address || license.postalCode || license.city) && (
@@ -204,29 +220,52 @@ export function LicenseListItem({
                           {initials}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4">
+                      <div className="flex-1 min-w-0">
                         <div>
                           <span className="font-medium text-sm text-gray-800">
                             {contact.firstName} {contact.lastName}
                           </span>
                           <p className="text-xs text-gray-500">{contact.role}</p>
                         </div>
-                        <div className="flex items-center gap-3">
-                          {contact.phoneFixed && (
-                            <a href={`tel:${contact.phoneFixed}`} className="flex items-center gap-1 text-xs text-gray-500 hover:text-violet-600">
-                              <Phone className="h-3 w-3" />
-                              {contact.phoneFixed}
-                            </a>
-                          )}
+                        <div className="flex items-center gap-3 mt-1 flex-wrap">
+                          {contact.phones && contact.phones.map((phone, phoneIndex) => (
+                            phone.number && (
+                              <a
+                                key={phoneIndex}
+                                href={`tel:${phone.number}`}
+                                className={`flex items-center gap-1 text-xs text-gray-500 ${
+                                  phone.type === 'pro' ? 'hover:text-fuchsia-600' : 'hover:text-cyan-600'
+                                }`}
+                                title={`Téléphone ${phone.type === 'pro' ? 'professionnel' : 'personnel'}`}
+                              >
+                                {phone.type === 'pro' ? (
+                                  <Smartphone className="h-3 w-3" />
+                                ) : (
+                                  <Phone className="h-3 w-3" />
+                                )}
+                                <span className="font-medium">{phone.type === 'pro' ? 'Pro:' : 'Perso:'}</span> {phone.number}
+                              </a>
+                            )
+                          ))}
                         </div>
-                        <div className="flex items-center gap-3">
-                          {contact.phoneMobile && (
-                            <a href={`tel:${contact.phoneMobile}`} className="flex items-center gap-1 text-xs text-gray-500 hover:text-fuchsia-600">
-                              <Smartphone className="h-3 w-3" />
-                              {contact.phoneMobile}
-                            </a>
-                          )}
-                        </div>
+                        {contact.emails && contact.emails.length > 0 && (
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            {contact.emails.map((email, index) => (
+                              <a
+                                key={index}
+                                href={`mailto:${email}`}
+                                className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600"
+                                title={email}
+                              >
+                                <Mail className="h-3 w-3" />
+                                <span className="truncate max-w-[150px]">{email}</span>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                        {contact.notes && (
+                          <p className="text-xs text-gray-500 italic mt-1 line-clamp-1">{contact.notes}</p>
+                        )}
                       </div>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button

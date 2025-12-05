@@ -1,15 +1,25 @@
+export interface Phone {
+  number: string
+  type: 'pro' | 'perso'
+}
+
 export interface Contact {
   id: string
   firstName: string
   lastName: string
   role: string
-  phoneFixed?: string
-  phoneMobile?: string
+  phones: Phone[]
+  emails: string[]
+  notes?: string
 }
 
-export type ConnectorType = 'xplore' | 'gxd5' | 'venus' | 'onemanager' | null
+export type ConnectorType = 'xplore' | 'gxd5' | 'venus' | 'onemanager' | 'evolucare'
 
 export type LicenseMode = 'full' | 'light'
+
+export type PlanningType = 'easydoct' | 'momentum' | 'swappy' | 'genesis'
+
+export type PortalType = 'easydoct' | 'vidi'
 
 export type LicenseOption =
   | 'allodoct'
@@ -27,7 +37,10 @@ export interface License {
   address?: string
   postalCode?: string
   city?: string
-  connector?: ConnectorType
+  portal: PortalType
+  connector: ConnectorType
+  hasWebserviceRequests: boolean
+  planning: PlanningType
   options: LicenseOption[]
   isFitCenter: boolean
   notes?: string
@@ -43,11 +56,12 @@ export const LICENSE_TYPE_LABELS: Record<LicenseType, string> = {
   maison_sante: 'Maison de santé',
 }
 
-export const CONNECTOR_LABELS: Record<NonNullable<ConnectorType>, string> = {
+export const CONNECTOR_LABELS: Record<ConnectorType, string> = {
   xplore: 'Xplore',
   gxd5: 'GxD5',
   venus: 'Venus',
   onemanager: 'Onemanager',
+  evolucare: 'Evolucare',
 }
 
 export const LICENSE_MODE_LABELS: Record<LicenseMode, string> = {
@@ -55,12 +69,36 @@ export const LICENSE_MODE_LABELS: Record<LicenseMode, string> = {
   light: 'Light',
 }
 
+export const PORTAL_LABELS: Record<PortalType, string> = {
+  easydoct: 'Easydoct',
+  vidi: 'VIDI',
+}
+
+export const PORTALS: { value: PortalType; label: string }[] = [
+  { value: 'easydoct', label: 'Easydoct' },
+  { value: 'vidi', label: 'VIDI' },
+]
+
+export const PLANNING_LABELS: Record<PlanningType, string> = {
+  easydoct: 'Easydoct',
+  momentum: 'Momentum',
+  swappy: 'Swappy',
+  genesis: 'Genesis',
+}
+
+export const PLANNINGS: { value: PlanningType; label: string }[] = [
+  { value: 'easydoct', label: 'Easydoct' },
+  { value: 'momentum', label: 'Momentum' },
+  { value: 'swappy', label: 'Swappy' },
+  { value: 'genesis', label: 'Genesis' },
+]
+
 export const CONNECTORS: { value: ConnectorType; label: string }[] = [
-  { value: null, label: 'Aucun' },
   { value: 'xplore', label: 'Xplore' },
   { value: 'gxd5', label: 'GxD5' },
   { value: 'venus', label: 'Venus' },
   { value: 'onemanager', label: 'Onemanager' },
+  { value: 'evolucare', label: 'Evolucare' },
 ]
 
 export const LICENSE_OPTIONS: { value: LicenseOption; label: string }[] = [
@@ -76,7 +114,6 @@ export const ROLE_SUGGESTIONS = [
   'Manipulateur radio',
   'Secrétaire médicale',
   'Directeur',
-  'Infirmier(ère)',
   'Technicien',
   'Responsable administratif',
   'Médecin généraliste',

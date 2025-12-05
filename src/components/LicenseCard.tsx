@@ -13,6 +13,9 @@ import {
   Zap,
   MessageSquare,
   Layers,
+  Calendar,
+  Globe,
+  Network,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -25,7 +28,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import type { License, Contact } from '@/types'
-import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS, LICENSE_OPTIONS } from '@/types'
+import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS, LICENSE_OPTIONS, PLANNING_LABELS, PORTAL_LABELS } from '@/types'
 import { LicenseForm } from './LicenseForm'
 import { ContactForm } from './ContactForm'
 import { ContactCard } from './ContactCard'
@@ -118,11 +121,35 @@ export function LicenseCard({
                 )}
 
                 {/* Connecteur */}
-                {license.connector && (
+                <div className="mt-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold shadow-sm">
+                    <Plug className="h-3 w-3" />
+                    {CONNECTOR_LABELS[license.connector]}
+                  </span>
+                </div>
+
+                {/* Portail */}
+                <div className="mt-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-teal-500 to-green-500 text-white text-xs font-semibold shadow-sm">
+                    <Globe className="h-3 w-3" />
+                    {PORTAL_LABELS[license.portal]}
+                  </span>
+                </div>
+
+                {/* Planification */}
+                <div className="mt-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold shadow-sm">
+                    <Calendar className="h-3 w-3" />
+                    {PLANNING_LABELS[license.planning]}
+                  </span>
+                </div>
+
+                {/* Requêtes webservice */}
+                {license.hasWebserviceRequests && (
                   <div className="mt-2">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold shadow-sm">
-                      <Plug className="h-3 w-3" />
-                      {CONNECTOR_LABELS[license.connector]}
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-semibold shadow-sm">
+                      <Network className="h-3 w-3" />
+                      Webservice
                     </span>
                   </div>
                 )}
