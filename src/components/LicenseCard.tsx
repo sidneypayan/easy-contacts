@@ -28,7 +28,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog'
 import type { License, Contact } from '@/types'
-import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS, LICENSE_OPTIONS, PLANNING_LABELS, PORTAL_LABELS } from '@/types'
+import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS, LICENSE_OPTIONS, PLANNING_LABELS, PORTAL_LABELS, BRAND_LABELS } from '@/types'
 import { LicenseForm } from './LicenseForm'
 import { ContactForm } from './ContactForm'
 import { ContactCard } from './ContactCard'
@@ -87,10 +87,10 @@ export function LicenseCard({
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-bold text-lg text-gray-800">{license.name}</h3>
-                  {license.isFitCenter && (
+                  {license.brand && (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 text-white text-xs font-bold shadow-sm">
                       <Shield className="h-3 w-3" />
-                      FIT
+                      {BRAND_LABELS[license.brand]}
                     </span>
                   )}
                 </div>
@@ -121,20 +121,26 @@ export function LicenseCard({
                 )}
 
                 {/* Connecteur */}
-                <div className="mt-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold shadow-sm">
-                    <Plug className="h-3 w-3" />
-                    {CONNECTOR_LABELS[license.connector]}
-                  </span>
-                </div>
+                {license.connector && (
+                  <div className="mt-2">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-semibold shadow-sm">
+                      <Plug className="h-3 w-3" />
+                      {CONNECTOR_LABELS[license.connector]}
+                    </span>
+                  </div>
+                )}
 
-                {/* Portail */}
-                <div className="mt-2">
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-teal-500 to-green-500 text-white text-xs font-semibold shadow-sm">
-                    <Globe className="h-3 w-3" />
-                    {PORTAL_LABELS[license.portal]}
-                  </span>
-                </div>
+                {/* Portail(s) */}
+                {license.portals && license.portals.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {license.portals.map((portal) => (
+                      <span key={portal} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gradient-to-r from-teal-500 to-green-500 text-white text-xs font-semibold shadow-sm">
+                        <Globe className="h-3 w-3" />
+                        {PORTAL_LABELS[portal]}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Planification */}
                 <div className="mt-2">
@@ -166,6 +172,19 @@ export function LicenseCard({
                         {label}
                       </span>
                     ))}
+                  </div>
+                )}
+
+                {/* Remarques connecteur */}
+                {license.connectorNotes && (
+                  <div className="mt-3 p-2.5 rounded-lg bg-blue-50 border border-blue-200">
+                    <div className="flex items-start gap-2">
+                      <Plug className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-blue-700 mb-0.5">Remarques connecteur</p>
+                        <p className="text-xs text-blue-800 whitespace-pre-wrap">{license.connectorNotes}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
 

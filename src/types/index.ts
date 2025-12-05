@@ -15,11 +15,13 @@ export interface Contact {
 
 export type ConnectorType = 'xplore' | 'gxd5' | 'venus' | 'onemanager' | 'evolucare'
 
-export type LicenseMode = 'full' | 'light'
+export type LicenseMode = 'full' | 'light' | 'none'
 
 export type PlanningType = 'easydoct' | 'momentum' | 'swappy' | 'genesis'
 
 export type PortalType = 'easydoct' | 'vidi'
+
+export type BrandType = 'fit' | 'vidi' | 'imaneo' | 'simago' | 'impf'
 
 export type LicenseOption =
   | 'allodoct'
@@ -27,6 +29,8 @@ export type LicenseOption =
   | 'diffusion_cr'
   | 'scanner'
   | 'demandes_rdv'
+
+export type IncidentContactType = 'ris' | 'interco' | 'client'
 
 export interface License {
   id: string
@@ -37,12 +41,14 @@ export interface License {
   address?: string
   postalCode?: string
   city?: string
-  portal: PortalType
-  connector: ConnectorType
+  portals: PortalType[]
+  connector?: ConnectorType
+  connectorNotes?: string
   hasWebserviceRequests: boolean
+  incidentContacts: IncidentContactType[]
   planning: PlanningType
   options: LicenseOption[]
-  isFitCenter: boolean
+  brand?: BrandType
   notes?: string
   contacts: Contact[]
   createdAt: string
@@ -65,6 +71,7 @@ export const CONNECTOR_LABELS: Record<ConnectorType, string> = {
 }
 
 export const LICENSE_MODE_LABELS: Record<LicenseMode, string> = {
+  none: 'Aucun',
   full: 'Full',
   light: 'Light',
 }
@@ -109,6 +116,34 @@ export const LICENSE_OPTIONS: { value: LicenseOption; label: string }[] = [
   { value: 'demandes_rdv', label: 'Demandes de rendez-vous' },
 ]
 
+export const INCIDENT_CONTACT_LABELS: Record<IncidentContactType, string> = {
+  ris: 'RIS',
+  interco: 'Interco',
+  client: 'Client',
+}
+
+export const INCIDENT_CONTACTS: { value: IncidentContactType; label: string }[] = [
+  { value: 'ris', label: 'RIS' },
+  { value: 'interco', label: 'Interco' },
+  { value: 'client', label: 'Client' },
+]
+
+export const BRAND_LABELS: Record<BrandType, string> = {
+  fit: 'FIT',
+  vidi: 'VIDI',
+  imaneo: 'IMANEO',
+  simago: 'SIMAGO',
+  impf: 'IMPF',
+}
+
+export const BRANDS: { value: BrandType; label: string }[] = [
+  { value: 'fit', label: 'FIT' },
+  { value: 'vidi', label: 'VIDI' },
+  { value: 'imaneo', label: 'IMANEO' },
+  { value: 'simago', label: 'SIMAGO' },
+  { value: 'impf', label: 'IMPF' },
+]
+
 export const ROLE_SUGGESTIONS = [
   'Médecin radiologue',
   'Manipulateur radio',
@@ -121,7 +156,7 @@ export const ROLE_SUGGESTIONS = [
 ]
 
 export interface LicenseFilters {
-  isFitCenter: boolean | null
+  brand: BrandType | null
   mode: LicenseMode | null
   type: LicenseType | null
   connector: ConnectorType | 'any' | null

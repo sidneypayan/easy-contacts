@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/dialog'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import type { License, Contact } from '@/types'
-import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS, PLANNING_LABELS, PORTAL_LABELS } from '@/types'
+import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTOR_LABELS, PLANNING_LABELS, PORTAL_LABELS, BRAND_LABELS } from '@/types'
 import { LicenseForm } from './LicenseForm'
 import { ContactForm } from './ContactForm'
 
@@ -90,10 +90,10 @@ export function LicenseListItem({
             <div className="min-w-0">
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-gray-800 truncate">{license.name}</span>
-                {license.isFitCenter && (
+                {license.brand && (
                   <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-emerald-400 to-green-500 text-white text-[10px] font-bold">
                     <Shield className="h-2.5 w-2.5" />
-                    FIT
+                    {BRAND_LABELS[license.brand]}
                   </span>
                 )}
               </div>
@@ -116,14 +116,18 @@ export function LicenseListItem({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">
-                <Plug className="h-3 w-3" />
-                {CONNECTOR_LABELS[license.connector]}
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 text-teal-700 text-xs font-medium">
-                <Globe className="h-3 w-3" />
-                {PORTAL_LABELS[license.portal]}
-              </span>
+              {license.connector && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">
+                  <Plug className="h-3 w-3" />
+                  {CONNECTOR_LABELS[license.connector]}
+                </span>
+              )}
+              {license.portals && license.portals.map((portal) => (
+                <span key={portal} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-teal-100 text-teal-700 text-xs font-medium">
+                  <Globe className="h-3 w-3" />
+                  {PORTAL_LABELS[portal]}
+                </span>
+              ))}
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-100 text-purple-700 text-xs font-medium">
                 <Calendar className="h-3 w-3" />
                 {PLANNING_LABELS[license.planning]}
@@ -183,6 +187,18 @@ export function LicenseListItem({
         {/* Expanded contacts */}
         {expanded && (
           <div className="border-t border-dashed border-gray-200 bg-gray-50/50 p-4">
+            {/* Remarques connecteur */}
+            {license.connectorNotes && (
+              <div className="mb-4 p-2.5 rounded-lg bg-blue-50 border border-blue-200">
+                <div className="flex items-start gap-2">
+                  <Plug className="h-3.5 w-3.5 text-blue-600 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="text-xs font-semibold text-blue-700 mb-0.5">Remarques connecteur</p>
+                    <p className="text-xs text-blue-800 whitespace-pre-wrap">{license.connectorNotes}</p>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Remarques */}
             {license.notes && (
               <div className="mb-4 p-2.5 rounded-lg bg-amber-50 border border-amber-200">

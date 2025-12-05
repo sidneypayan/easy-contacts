@@ -73,8 +73,8 @@ function AuthenticatedApp() {
         if (!matchesLicense && !matchesContact) return false
       }
 
-      // FIT filter
-      if (filters.isFitCenter !== null && license.isFitCenter !== filters.isFitCenter) {
+      // Brand filter
+      if (filters.brand !== null && license.brand !== filters.brand) {
         return false
       }
 

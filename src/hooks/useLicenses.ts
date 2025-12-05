@@ -10,13 +10,19 @@ export function useLicenses() {
     // Migration: ajouter les champs mode, planning, portal, connector et hasWebserviceRequests si absents
     // Migration: convertir les anciens champs téléphone en tableau phones[]
     // Migration: ajouter emails comme tableau vide pour les contacts existants
-    return data.map((license) => ({
+    // Migration: convertir isFitCenter boolean et brands array vers brand unique
+    return data.map((license: any) => ({
       ...license,
-      mode: license.mode ?? 'full',
+      mode: license.mode ?? 'none',
       planning: license.planning ?? 'easydoct',
-      portal: license.portal ?? 'easydoct',
-      connector: license.connector ?? 'xplore',
+      portals: license.portals ?? (license.portal ? [license.portal] : []),
+      connector: license.connector,
       hasWebserviceRequests: license.hasWebserviceRequests ?? false,
+      incidentContacts: license.incidentContacts ?? [],
+      brand: license.brand ?? (license.brands?.[0]) ?? (license.isFitCenter ? 'fit' : undefined),
+      portal: undefined,
+      brands: undefined,
+      isFitCenter: undefined,
       contacts: license.contacts.map((contact: any) => {
         // Migration des anciens champs téléphone vers phones[]
         const phones = []

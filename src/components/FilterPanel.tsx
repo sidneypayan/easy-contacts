@@ -1,7 +1,7 @@
 import { Filter, X, Shield, Layers, Building2, Plug, Zap } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { LicenseFilters, LicenseType, LicenseMode, LicenseOption } from '@/types'
-import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTORS, LICENSE_OPTIONS } from '@/types'
+import type { LicenseFilters, LicenseType, LicenseMode, LicenseOption, BrandType } from '@/types'
+import { LICENSE_TYPE_LABELS, LICENSE_MODE_LABELS, CONNECTORS, LICENSE_OPTIONS, BRANDS } from '@/types'
 
 interface FilterPanelProps {
   filters: LicenseFilters
@@ -11,7 +11,7 @@ interface FilterPanelProps {
 }
 
 const defaultFilters: LicenseFilters = {
-  isFitCenter: null,
+  brand: null,
   mode: null,
   type: null,
   connector: null,
@@ -20,7 +20,7 @@ const defaultFilters: LicenseFilters = {
 
 export function FilterPanel({ filters, onFiltersChange, isOpen, onToggle }: FilterPanelProps) {
   const activeFiltersCount = [
-    filters.isFitCenter !== null,
+    filters.brand !== null,
     filters.mode !== null,
     filters.type !== null,
     filters.connector !== null,
@@ -78,28 +78,34 @@ export function FilterPanel({ filters, onFiltersChange, isOpen, onToggle }: Filt
           </div>
 
           <div className="space-y-4">
-            {/* FIT Center */}
+            {/* Marque */}
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center gap-1.5 mb-2">
                 <Shield className="h-3.5 w-3.5" />
-                Centre FIT
+                Marque
               </label>
-              <div className="flex gap-2">
-                {[
-                  { value: null, label: 'Tous' },
-                  { value: true, label: 'FIT' },
-                  { value: false, label: 'Non FIT' },
-                ].map((option) => (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => onFiltersChange({ ...filters, brand: null })}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    filters.brand === null
+                      ? 'bg-violet-500 text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  Toutes
+                </button>
+                {BRANDS.map((brand) => (
                   <button
-                    key={String(option.value)}
-                    onClick={() => onFiltersChange({ ...filters, isFitCenter: option.value })}
-                    className={`flex-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      filters.isFitCenter === option.value
-                        ? 'bg-violet-500 text-white'
+                    key={brand.value}
+                    onClick={() => onFiltersChange({ ...filters, brand: brand.value })}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      filters.brand === brand.value
+                        ? 'bg-emerald-500 text-white'
                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                   >
-                    {option.label}
+                    {brand.label}
                   </button>
                 ))}
               </div>
