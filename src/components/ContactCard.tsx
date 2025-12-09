@@ -17,6 +17,12 @@ interface ContactCardProps {
   contact: Contact
   onUpdate: (data: Partial<Omit<Contact, 'id'>>) => void
   onDelete: () => void
+  /** Props pour personnaliser le formulaire d'édition */
+  formProps?: {
+    enableRoleSuggestions?: boolean
+    roleLabel?: string
+    rolePlaceholder?: string
+  }
 }
 
 const avatarGradients = [
@@ -28,7 +34,7 @@ const avatarGradients = [
   'from-fuchsia-400 to-pink-500',
 ]
 
-export function ContactCard({ contact, onUpdate, onDelete }: ContactCardProps) {
+export function ContactCard({ contact, onUpdate, onDelete, formProps }: ContactCardProps) {
   const [editOpen, setEditOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
 
@@ -125,6 +131,9 @@ export function ContactCard({ contact, onUpdate, onDelete }: ContactCardProps) {
         onOpenChange={setEditOpen}
         onSubmit={onUpdate}
         initialData={contact}
+        enableRoleSuggestions={formProps?.enableRoleSuggestions}
+        roleLabel={formProps?.roleLabel}
+        rolePlaceholder={formProps?.rolePlaceholder}
       />
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>

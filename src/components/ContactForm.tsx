@@ -17,16 +17,31 @@ interface ContactFormProps {
   onOpenChange: (open: boolean) => void
   onSubmit: (data: Omit<Contact, 'id'>) => void
   initialData?: Contact
+  /** Si true, affiche les suggestions de rôle. Par défaut: true */
+  enableRoleSuggestions?: boolean
+  /** Placeholder personnalisé pour le champ rôle */
+  rolePlaceholder?: string
+  /** Label personnalisé pour le champ rôle */
+  roleLabel?: string
 }
 
-export function ContactForm({ open, onOpenChange, onSubmit, initialData }: ContactFormProps) {
+export function ContactForm({
+  open,
+  onOpenChange,
+  onSubmit,
+  initialData,
+  enableRoleSuggestions = true,
+  rolePlaceholder = "Ex: Médecin radiologue",
+  roleLabel = "Rôle / Fonction",
+}: ContactFormProps) {
   const [firstName, setFirstName] = useState(initialData?.firstName ?? '')
   const [lastName, setLastName] = useState(initialData?.lastName ?? '')
   const [role, setRole] = useState(initialData?.role ?? '')
   const [phones, setPhones] = useState<PhoneType[]>(initialData?.phones ?? [{ number: '', type: 'pro' }])
   const [emails, setEmails] = useState<string[]>(initialData?.emails ?? [''])
   const [notes, setNotes] = useState(initialData?.notes ?? '')
-  const [showRoleSuggestions, setShowRoleSuggestions] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [hasTypedInRole, setHasTypedInRole] = useState(false)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,6 +72,7 @@ export function ContactForm({ open, onOpenChange, onSubmit, initialData }: Conta
     setPhones(initialData?.phones ?? [{ number: '', type: 'pro' }])
     setEmails(initialData?.emails ?? [''])
     setNotes(initialData?.notes ?? '')
+    setHasTypedInRole(false)
   }
 
   const addPhone = () => {
@@ -95,9 +111,19 @@ export function ContactForm({ open, onOpenChange, onSubmit, initialData }: Conta
     setEmails(newEmails)
   }
 
-  const filteredSuggestions = ROLE_SUGGESTIONS.filter((s) =>
-    s.toLowerCase().includes(role.toLowerCase())
-  )
+  // Afficher toutes les suggestions tant que l'utilisateur n'a pas commencé à taper
+  // Une fois qu'il tape, filtrer selon ce qui est saisi
+  const filteredSuggestions = enableRoleSuggestions
+    ? (() => {
+        // Si l'utilisateur n'a pas encore tapé, afficher toutes les suggestions
+        if (!hasTypedInRole) {
+          return ROLE_SUGGESTIONS
+        }
+        // Sinon filtrer selon ce qui est tapé
+        const filtered = ROLE_SUGGESTIONS.filter((s) => s.toLowerCase().includes(role.toLowerCase()))
+        return filtered.length === 0 ? ROLE_SUGGESTIONS : filtered
+      })()
+    : []
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
@@ -135,17 +161,20 @@ export function ContactForm({ open, onOpenChange, onSubmit, initialData }: Conta
           <div className="space-y-2 relative">
             <label className="text-sm font-medium flex items-center gap-2">
               <Briefcase className="h-4 w-4 text-muted-foreground" />
-              Rôle / Fonction *
+              {roleLabel} *
             </label>
             <Input
               value={role}
-              onChange={(e) => setRole(e.target.value)}
-              onFocus={() => setShowRoleSuggestions(true)}
-              onBlur={() => setTimeout(() => setShowRoleSuggestions(false), 200)}
-              placeholder="Ex: Médecin radiologue"
+              onChange={(e) => {
+                setRole(e.target.value)
+                setHasTypedInRole(true)
+              }}
+              onFocus={() => enableRoleSuggestions && setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              placeholder={rolePlaceholder}
               required
             />
-            {showRoleSuggestions && filteredSuggestions.length > 0 && (
+            {enableRoleSuggestions && showSuggestions && filteredSuggestions.length > 0 && (
               <div className="absolute z-10 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
                 {filteredSuggestions.map((suggestion) => (
                   <button
@@ -154,7 +183,7 @@ export function ContactForm({ open, onOpenChange, onSubmit, initialData }: Conta
                     className="w-full px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
                     onMouseDown={() => {
                       setRole(suggestion)
-                      setShowRoleSuggestions(false)
+                      setShowSuggestions(false)
                     }}
                   >
                     {suggestion}

@@ -1,13 +1,16 @@
 import { useState, useMemo } from 'react'
 import { Toaster } from '@/components/ui/sonner'
 import { useLicenses } from '@/hooks/useLicenses'
-import { Header, type ViewMode } from '@/components/Header'
+import { useRISAgenda } from '@/hooks/useRISAgenda'
+import { Header, type ViewMode, type AppView } from '@/components/Header'
 import { LicenseCard } from '@/components/LicenseCard'
 import { LicenseListItem } from '@/components/LicenseListItem'
 import { LicenseForm } from '@/components/LicenseForm'
 import { EmptyState } from '@/components/EmptyState'
 import { PasswordGate } from '@/components/PasswordGate'
 import { defaultFilters } from '@/components/FilterPanel'
+import { RISAgenda } from '@/components/RISAgenda'
+import { RISForm } from '@/components/RISForm'
 import type { LicenseFilters } from '@/types'
 
 function AuthenticatedApp() {
@@ -23,12 +26,24 @@ function AuthenticatedApp() {
     importData,
   } = useLicenses()
 
+  const {
+    risEntities,
+    addRIS,
+    updateRIS,
+    deleteRIS,
+    addContact: addRISContact,
+    updateContact: updateRISContact,
+    deleteContact: deleteRISContact,
+  } = useRISAgenda()
+
   const [searchQuery, setSearchQuery] = useState('')
   const [addLicenseOpen, setAddLicenseOpen] = useState(false)
+  const [addRISOpen, setAddRISOpen] = useState(false)
   const [viewMode, setViewMode] = useState<ViewMode>('cards')
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({})
   const [filters, setFilters] = useState<LicenseFilters>(defaultFilters)
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [appView, setAppView] = useState<AppView>('licenses')
 
   const isCardExpanded = (licenseId: string) => {
     if (expandedCards[licenseId] !== undefined) {
@@ -120,6 +135,7 @@ function AuthenticatedApp() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onAddLicense={() => setAddLicenseOpen(true)}
+          onAddRIS={() => setAddRISOpen(true)}
           onExport={exportData}
           onImport={importData}
           totalLicenses={licenses.length}
@@ -130,9 +146,22 @@ function AuthenticatedApp() {
           onFiltersChange={setFilters}
           filtersOpen={filtersOpen}
           onFiltersToggle={() => setFiltersOpen(!filtersOpen)}
+          appView={appView}
+          onAppViewChange={setAppView}
         />
         <main className="container mx-auto px-4 py-8">
-          {licenses.length === 0 ? (
+          {appView === 'ris-agenda' ? (
+            <RISAgenda
+              risEntities={risEntities}
+              onUpdateRIS={updateRIS}
+              onDeleteRIS={deleteRIS}
+              onAddContact={addRISContact}
+              onUpdateContact={updateRISContact}
+              onDeleteContact={deleteRISContact}
+              searchQuery={searchQuery}
+              viewMode={viewMode}
+            />
+          ) : licenses.length === 0 ? (
             <EmptyState onAddLicense={() => setAddLicenseOpen(true)} />
           ) : filteredLicenses.length === 0 ? (
             <div className="text-center py-16">
@@ -183,6 +212,11 @@ function AuthenticatedApp() {
           open={addLicenseOpen}
           onOpenChange={setAddLicenseOpen}
           onSubmit={addLicense}
+        />
+        <RISForm
+          open={addRISOpen}
+          onOpenChange={setAddRISOpen}
+          onSubmit={addRIS}
         />
       </div>
     </div>

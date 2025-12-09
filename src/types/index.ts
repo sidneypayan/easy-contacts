@@ -15,6 +15,18 @@ export interface Contact {
 
 export type ConnectorType = 'xplore' | 'gxd5' | 'venus' | 'onemanager' | 'evolucare'
 
+// Types RIS pour l'agenda
+export const DEFAULT_RIS_NAMES = ['Xplore', 'GxD5', 'Evolucare', 'OneManager'] as const
+
+export interface RISEntity {
+  id: string
+  name: string
+  notes?: string
+  contacts: Contact[]
+  createdAt: string
+  updatedAt: string
+}
+
 export type LicenseMode = 'full' | 'light' | 'none'
 
 export type PlanningType = 'easydoct' | 'momentum' | 'swappy' | 'genesis'
@@ -152,7 +164,7 @@ export const ROLE_SUGGESTIONS = [
   'Technicien',
   'Responsable administratif',
   'Médecin généraliste',
-  'Coordinateur',
+  'Service informatique',
 ]
 
 export interface LicenseFilters {

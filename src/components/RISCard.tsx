@@ -1,0 +1,201 @@
+import { useState } from 'react'
+import {
+  Database,
+  Pencil,
+  Trash2,
+  UserPlus,
+  ChevronDown,
+  Users,
+  MessageSquare,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from '@/components/ui/dialog'
+import type { RISEntity, Contact } from '@/types'
+import { RISForm } from './RISForm'
+import { ContactForm } from './ContactForm'
+import { ContactCard } from './ContactCard'
+
+interface RISCardProps {
+  ris: RISEntity
+  expanded: boolean
+  onToggleExpanded: () => void
+  onUpdate: (data: Partial<Omit<RISEntity, 'id' | 'contacts' | 'createdAt'>>) => void
+  onDelete: () => void
+  onAddContact: (contact: Omit<Contact, 'id'>) => void
+  onUpdateContact: (contactId: string, data: Partial<Omit<Contact, 'id'>>) => void
+  onDeleteContact: (contactId: string) => void
+  gradient: string
+}
+
+export function RISCard({
+  ris,
+  expanded,
+  onToggleExpanded,
+  onUpdate,
+  onDelete,
+  onAddContact,
+  onUpdateContact,
+  onDeleteContact,
+  gradient,
+}: RISCardProps) {
+  const [editOpen, setEditOpen] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [addContactOpen, setAddContactOpen] = useState(false)
+
+  return (
+    <>
+      <Card className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-violet-500/10 hover:-translate-y-1 border-0 bg-white/80 backdrop-blur-sm group">
+        <div className={`h-1.5 bg-gradient-to-r ${gradient}`} />
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3 min-w-0">
+              <div className={`p-2.5 rounded-xl bg-gradient-to-br ${gradient} text-white shadow-lg shrink-0`}>
+                <Database className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-lg text-gray-800">{ris.name}</h3>
+
+                {/* Remarques */}
+                {ris.notes && (
+                  <div className="mt-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200">
+                    <div className="flex items-start gap-2">
+                      <MessageSquare className="h-3.5 w-3.5 text-amber-600 mt-0.5 shrink-0" />
+                      <p className="text-xs text-amber-800 whitespace-pre-wrap">{ris.notes}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-lg hover:bg-violet-100 hover:text-violet-600"
+                onClick={() => setEditOpen(true)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-lg hover:bg-red-100 hover:text-red-600"
+                onClick={() => setDeleteOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="border-t border-dashed border-gray-200 pt-3">
+            <button
+              onClick={onToggleExpanded}
+              className="flex items-center justify-between w-full text-sm font-semibold text-gray-500 hover:text-violet-600 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-violet-100">
+                  <Users className="h-3.5 w-3.5 text-violet-600" />
+                </div>
+                {ris.contacts.length} contact{ris.contacts.length !== 1 ? 's' : ''}
+              </span>
+              <div className={`p-1 rounded-lg bg-gray-100 transition-transform ${expanded ? 'rotate-180' : ''}`}>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </button>
+            {expanded && (
+              <div className="mt-3 space-y-2">
+                {ris.contacts.length === 0 ? (
+                  <div className="text-center py-6 px-4 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-200">
+                    <Users className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+                    <p className="text-sm text-gray-400 font-medium">
+                      Aucun contact pour ce RIS
+                    </p>
+                  </div>
+                ) : (
+                  ris.contacts.map((contact) => (
+                    <ContactCard
+                      key={contact.id}
+                      contact={contact}
+                      onUpdate={(data) => onUpdateContact(contact.id, data)}
+                      onDelete={() => onDeleteContact(contact.id)}
+                      formProps={{
+                        enableRoleSuggestions: false,
+                        roleLabel: "Poste",
+                        rolePlaceholder: "Ex: Support technique, Commercial...",
+                      }}
+                    />
+                  ))
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full mt-2 rounded-xl border-dashed border-violet-300 text-violet-600 hover:bg-violet-50 hover:border-violet-400 transition-all"
+                  onClick={() => setAddContactOpen(true)}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Ajouter un contact
+                </Button>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <RISForm
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        onSubmit={onUpdate}
+        initialData={ris}
+      />
+
+      <ContactForm
+        open={addContactOpen}
+        onOpenChange={setAddContactOpen}
+        onSubmit={onAddContact}
+        enableRoleSuggestions={false}
+        roleLabel="Poste"
+        rolePlaceholder="Ex: Support technique, Commercial..."
+      />
+
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <div className="p-2 rounded-xl bg-red-100">
+                <Trash2 className="h-5 w-5" />
+              </div>
+              Supprimer le RIS
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              Êtes-vous sûr de vouloir supprimer <span className="font-semibold text-gray-700">"{ris.name}"</span> et tous ses contacts associés ?
+              Cette action est irréversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteOpen(false)} className="rounded-xl">
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              className="rounded-xl bg-gradient-to-r from-red-500 to-rose-500"
+              onClick={() => {
+                onDelete()
+                setDeleteOpen(false)
+              }}
+            >
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}

@@ -1,16 +1,18 @@
 import { useRef } from 'react'
-import { Stethoscope, Plus, Download, Upload, Search, Sparkles, LayoutGrid, List } from 'lucide-react'
+import { Stethoscope, Plus, Download, Upload, Search, Sparkles, LayoutGrid, List, Database, Building2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { FilterPanel } from './FilterPanel'
 import type { LicenseFilters } from '@/types'
 
 export type ViewMode = 'cards' | 'list'
+export type AppView = 'licenses' | 'ris-agenda'
 
 interface HeaderProps {
   searchQuery: string
   onSearchChange: (query: string) => void
   onAddLicense: () => void
+  onAddRIS: () => void
   onExport: () => void
   onImport: (file: File) => void
   totalLicenses: number
@@ -21,12 +23,15 @@ interface HeaderProps {
   onFiltersChange: (filters: LicenseFilters) => void
   filtersOpen: boolean
   onFiltersToggle: () => void
+  appView: AppView
+  onAppViewChange: (view: AppView) => void
 }
 
 export function Header({
   searchQuery,
   onSearchChange,
   onAddLicense,
+  onAddRIS,
   onExport,
   onImport,
   totalLicenses,
@@ -37,6 +42,8 @@ export function Header({
   onFiltersChange,
   filtersOpen,
   onFiltersToggle,
+  appView,
+  onAppViewChange,
 }: HeaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -77,26 +84,56 @@ export function Header({
                 </span>
               </div>
             </div>
+            {/* Navigation tabs */}
+            <div className="flex items-center rounded-xl border border-violet-200 bg-white/80 p-1 ml-4">
+              <button
+                onClick={() => onAppViewChange('licenses')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  appView === 'licenses'
+                    ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-sm'
+                    : 'text-gray-500 hover:text-violet-600 hover:bg-violet-50'
+                }`}
+                title="Licences"
+              >
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Licences</span>
+              </button>
+              <button
+                onClick={() => onAppViewChange('ris-agenda')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  appView === 'ris-agenda'
+                    ? 'bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white shadow-sm'
+                    : 'text-gray-500 hover:text-violet-600 hover:bg-violet-50'
+                }`}
+                title="RIS"
+              >
+                <Database className="h-4 w-4" />
+                <span className="hidden sm:inline">RIS</span>
+              </button>
+            </div>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {/* Recherche */}
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition-opacity" />
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                placeholder="Rechercher..."
+                placeholder={appView === 'licenses' ? "Rechercher..." : "Rechercher un contact..."}
                 className="pl-10 w-full sm:w-72 rounded-xl border-violet-200 focus:border-violet-400 bg-white/80 backdrop-blur-sm"
               />
             </div>
             <div className="flex items-center gap-2">
-              {/* Filters */}
-              <FilterPanel
-                filters={filters}
-                onFiltersChange={onFiltersChange}
-                isOpen={filtersOpen}
-                onToggle={onFiltersToggle}
-              />
+              {/* Filters - uniquement pour les licences */}
+              {appView === 'licenses' && (
+                <FilterPanel
+                  filters={filters}
+                  onFiltersChange={onFiltersChange}
+                  isOpen={filtersOpen}
+                  onToggle={onFiltersToggle}
+                />
+              )}
 
               {/* View mode toggle */}
               <div className="flex items-center rounded-xl border border-violet-200 bg-white/80 p-1">
@@ -150,11 +187,11 @@ export function Header({
                 className="hidden"
               />
               <Button
-                onClick={onAddLicense}
+                onClick={appView === 'licenses' ? onAddLicense : onAddRIS}
                 className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 shadow-lg shadow-violet-500/25 transition-all hover:shadow-xl hover:shadow-violet-500/30 hover:scale-105"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Nouvelle licence
+                {appView === 'licenses' ? 'Nouvelle licence' : 'Nouveau RIS'}
               </Button>
             </div>
           </div>
