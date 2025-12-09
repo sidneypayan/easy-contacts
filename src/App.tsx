@@ -34,6 +34,8 @@ function AuthenticatedApp() {
     addContact: addRISContact,
     updateContact: updateRISContact,
     deleteContact: deleteRISContact,
+    exportData: exportRISData,
+    importData: importRISData,
   } = useRISAgenda()
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -136,8 +138,8 @@ function AuthenticatedApp() {
           onSearchChange={setSearchQuery}
           onAddLicense={() => setAddLicenseOpen(true)}
           onAddRIS={() => setAddRISOpen(true)}
-          onExport={exportData}
-          onImport={importData}
+          onExport={appView === 'licenses' ? exportData : exportRISData}
+          onImport={appView === 'licenses' ? importData : importRISData}
           totalLicenses={licenses.length}
           totalContacts={totalContacts}
           viewMode={viewMode}

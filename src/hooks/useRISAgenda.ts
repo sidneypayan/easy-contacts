@@ -134,6 +134,44 @@ export function useRISAgenda() {
     [setRISEntities]
   )
 
+  const exportData = useCallback(() => {
+    const dataStr = JSON.stringify(risEntities, null, 2)
+    const blob = new Blob([dataStr], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `ris-contacts-export-${new Date().toISOString().split('T')[0]}.json`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success('Données RIS exportées avec succès')
+  }, [risEntities])
+
+  const importData = useCallback(
+    (file: File) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        try {
+          const importedData = JSON.parse(e.target?.result as string) as RISEntity[]
+          if (!Array.isArray(importedData)) {
+            throw new Error('Format invalide')
+          }
+          setRISEntities((prev) => {
+            const existingIds = new Set(prev.map((r) => r.id))
+            const newRIS = importedData.filter((r) => !existingIds.has(r.id))
+            return [...prev, ...newRIS]
+          })
+          toast.success(`${importedData.length} RIS importé(s) avec succès`)
+        } catch {
+          toast.error("Erreur lors de l'import des données")
+        }
+      }
+      reader.readAsText(file)
+    },
+    [setRISEntities]
+  )
+
   return {
     risEntities,
     addRIS,
@@ -142,5 +180,7 @@ export function useRISAgenda() {
     addContact,
     updateContact,
     deleteContact,
+    exportData,
+    importData,
   }
 }
